@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Screen Translator</string>
+    <string name="accessibility_service_description">Translate your screen using Papago</string>
+</resources>

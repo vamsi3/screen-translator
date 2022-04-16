@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_service_description">Translate your screen using Papago</string>
+    <string name="enable_screen_translator">Enable \'Screen Translator\'</string>
+    <string name="papago_app_not_found">Papago app not found</string>
+    <string name="translation_failed">Translation failed</string>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Screen Translator</string>
+    <string name="top_bar_favorite_description">Click to open the GitHub link this app</string>
+    <string name="top_bar_favorite_url">https://github.com/vamsi3/screen-translator</string>
+</resources>
