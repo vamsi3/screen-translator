@@ -3,6 +3,7 @@ package com.vamsi3.android.screentranslator.feature.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vamsi3.android.screentranslator.core.data.model.ThemeMode
+import com.vamsi3.android.screentranslator.core.data.model.TranslateApp
 import com.vamsi3.android.screentranslator.core.data.repository.UserDataRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,6 +24,7 @@ class SettingsViewModel @Inject constructor(
                 SettingsUiState.Success(
                     settingsData = SettingsData(
                         themeMode = userData.themeMode,
+                        translateApp = userData.translateApp,
                         useNotificationPanelSwipeUp = userData.useNotificationPanelSwipeUp,
                         notificationPanelSwipeUpDuration = userData.notificationPanelSwipeUpDuration.inWholeMilliseconds,
                     )
@@ -51,12 +53,19 @@ class SettingsViewModel @Inject constructor(
             userDataRepository.setThemeMode(themeMode)
         }
     }
+
+    fun setTranslateApp(translateApp: TranslateApp) {
+        viewModelScope.launch {
+            userDataRepository.setTranslateApp(translateApp)
+        }
+    }
 }
 
 data class SettingsData(
     val themeMode: ThemeMode,
     val useNotificationPanelSwipeUp: Boolean,
     val notificationPanelSwipeUpDuration: Long,
+    val translateApp: TranslateApp,
 )
 
 sealed interface SettingsUiState {

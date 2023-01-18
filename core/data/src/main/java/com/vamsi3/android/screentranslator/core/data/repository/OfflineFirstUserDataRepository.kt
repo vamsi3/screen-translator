@@ -1,6 +1,7 @@
 package com.vamsi3.android.screentranslator.core.data.repository
 
 import com.vamsi3.android.screentranslator.core.data.model.ThemeMode
+import com.vamsi3.android.screentranslator.core.data.model.TranslateApp
 import com.vamsi3.android.screentranslator.core.datastore.UserPreferencesDataSource
 import javax.inject.Inject
 import kotlin.time.Duration
@@ -19,4 +20,8 @@ class OfflineFirstUserDataRepository @Inject constructor(
 
     override suspend fun setThemeMode(themeMode: ThemeMode) =
         userPreferencesDataSource.setThemeMode(themeMode)
+
+    override suspend fun setTranslateApp(translateApp: TranslateApp) =
+        userPreferencesDataSource.setTranslateApp(translateApp)
+
 }

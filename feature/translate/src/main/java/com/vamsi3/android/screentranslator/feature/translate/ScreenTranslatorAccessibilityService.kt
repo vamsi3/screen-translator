@@ -19,8 +19,6 @@ import javax.inject.Inject
 
 const val FILE_PROVIDER_AUTHORITY = "com.vamsi3.android.screentranslator.fileProvider"
 const val MIME_TYPE_JPEG = "image/jpeg"
-const val PAPAGO_APP_PACKAGE_NAME = "com.naver.labs.translator"
-const val PAPAGO_APP_INTENT_RECEIVER = "$PAPAGO_APP_PACKAGE_NAME.ui.main.DeepLinkActivity"
 const val SCREENSHOT_FILE_NAME = "screenshot.jpg"
 
 @AndroidEntryPoint
@@ -53,7 +51,7 @@ class ScreenTranslatorAccessibilityService : AccessibilityService() {
             .inWholeMilliseconds.let { if (it <= 0L) 250L else it }
 
         if (!useNotificationPanelSwipeUp) {
-            takeScreenshotAndRedirectToPapago()
+            takeScreenshotAndRedirectToTranslateApp()
             return
         }
 
@@ -74,7 +72,7 @@ class ScreenTranslatorAccessibilityService : AccessibilityService() {
         dispatchGesture(gestureDescription, object : GestureResultCallback() {
             override fun onCompleted(gestureDescription: GestureDescription?) {
                 super.onCompleted(gestureDescription)
-                takeScreenshotAndRedirectToPapago()
+                takeScreenshotAndRedirectToTranslateApp()
             }
 
             override fun onCancelled(gestureDescription: GestureDescription?) {
@@ -91,7 +89,7 @@ class ScreenTranslatorAccessibilityService : AccessibilityService() {
         showToast(R.string.enable_screen_translator)
     }
 
-    private fun takeScreenshotAndRedirectToPapago() {
+    private fun takeScreenshotAndRedirectToTranslateApp() {
         takeScreenshot(
             Display.DEFAULT_DISPLAY,
             application.mainExecutor,
@@ -107,7 +105,7 @@ class ScreenTranslatorAccessibilityService : AccessibilityService() {
                     }
 
                     val file = writeBitmapToFile(bitmap)
-                    redirectToPapago(file)
+                    redirectToTranslateApp(file)
                 }
 
                 override fun onFailure(i: Int) {
@@ -128,7 +126,9 @@ class ScreenTranslatorAccessibilityService : AccessibilityService() {
         return file
     }
 
-    private fun redirectToPapago(file: File) {
+    private fun redirectToTranslateApp(file: File) {
+        val translateApp = userDataRepository.userData.value.translateApp
+
         val uri = FileProvider.getUriForFile(
             application,
             FILE_PROVIDER_AUTHORITY,
@@ -136,16 +136,34 @@ class ScreenTranslatorAccessibilityService : AccessibilityService() {
         )
 
         val intent = Intent(Intent.ACTION_SEND)
-            .addCategory(Intent.CATEGORY_DEFAULT)
-            .setPackage(PAPAGO_APP_PACKAGE_NAME)
-            .setClassName(PAPAGO_APP_PACKAGE_NAME, PAPAGO_APP_INTENT_RECEIVER)
-            .setDataAndTypeAndNormalize(uri, MIME_TYPE_JPEG)
-            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            .setType(MIME_TYPE_JPEG)
+            .setPackage(translateApp.packageName)
+            .setClassName(translateApp.packageName, translateApp.imageTranslateActivity)
+//            .setDataAndTypeAndNormalize(uri, MIME_TYPE_JPEG)
+            .setFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        or Intent.FLAG_ACTIVITY_NEW_DOCUMENT
+                        or Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
+                        or Intent.FLAG_ACTIVITY_FORWARD_RESULT
+                        or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+                        or Intent.FLAG_ACTIVITY_NEW_TASK
+            )
+            .putExtra(Intent.EXTRA_STREAM, uri)
 
         try {
             startActivity(intent)
         } catch (e: ActivityNotFoundException) {
-            showToast(R.string.papago_app_not_found)
+//            try {
+//                val intent = Intent(
+//                    this,
+//                    Class.forName("com.vamsi3.android.screentranslator.MainActivity")
+//                )
+//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//                startActivity(intent)
+//            } catch (e: ClassNotFoundException) {
+//                e.printStackTrace()
+//            }
+            showToast("${translateApp.appName} app not found")
         }
     }
 
@@ -153,4 +171,7 @@ class ScreenTranslatorAccessibilityService : AccessibilityService() {
         Toast.makeText(application, resourceId, Toast.LENGTH_SHORT).show()
     }
 
+    private fun showToast(message: String) {
+        Toast.makeText(application, message, Toast.LENGTH_SHORT).show()
+    }
 }

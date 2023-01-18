@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "com/vamsi3/android/screentranslator/core/datastore/user_theme_preference.proto";
+import "com/vamsi3/android/screentranslator/core/datastore/user_translate_app_preference.proto";
 
 option java_package = "com.vamsi3.android.screentranslator.core.datastore";
 option java_multiple_files = true;
@@ -9,4 +10,5 @@ message UserPreferencesProto {
     bool use_notification_panel_swipe_up = 1;
     int32 notification_panel_swipe_up_duration_milliseconds = 2;
     UserThemePreferenceProto user_theme_preference = 3;
+    UserTranslateAppPreferenceProto user_translate_app_preference = 4;
 }
