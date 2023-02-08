@@ -4,15 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
@@ -85,10 +82,11 @@ fun ThemeSetting(
     themeMode: ThemeMode,
     onChangeThemeMode: (ThemeMode) -> Unit,
 ) {
-    val openDialog = remember { mutableStateOf(false) }
+    val (openDialog, setOpenDialog) = remember { mutableStateOf(false) }
 
     ThemeModeDialog(
         openDialog = openDialog,
+        setOpenDialog = setOpenDialog,
         themeMode = themeMode,
         onChangeThemeMode = onChangeThemeMode
     )
@@ -103,7 +101,7 @@ fun ThemeSetting(
     ) {
         Row(
             modifier = Modifier
-                .padding(start = 16.dp, top = 8.dp, bottom = 16.dp)
+                .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -111,7 +109,7 @@ fun ThemeSetting(
             Text("Theme", style = MaterialTheme.typography.titleMedium)
             Button(
                 onClick = {
-                    openDialog.value = true
+                    setOpenDialog(true)
                 },
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
@@ -130,10 +128,11 @@ fun TranslateAppSetting(
     translateApp: TranslateApp,
     onChangeTranslateApp: (TranslateApp) -> Unit,
 ) {
-    val openDialog = remember { mutableStateOf(false) }
+    val (openDialog, setOpenDialog) = remember { mutableStateOf(false) }
 
     TranslateAppDialog(
         openDialog = openDialog,
+        setOpenDialog = setOpenDialog,
         translateApp = translateApp,
         onChangeTranslateApp = onChangeTranslateApp
     )
@@ -148,7 +147,7 @@ fun TranslateAppSetting(
     ) {
         Row(
             modifier = Modifier
-                .padding(start = 16.dp, top = 8.dp, bottom = 16.dp)
+                .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -156,7 +155,7 @@ fun TranslateAppSetting(
             Text("Translate App", style = MaterialTheme.typography.titleMedium)
             Button(
                 onClick = {
-                    openDialog.value = true
+                    setOpenDialog(true)
                 },
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
@@ -172,72 +171,51 @@ fun TranslateAppSetting(
 @ExperimentalMaterial3Api
 @Composable
 fun TranslateAppDialog(
-    openDialog: MutableState<Boolean>,
+    openDialog: Boolean,
+    setOpenDialog: (Boolean) -> Unit,
     translateApp: TranslateApp,
     onChangeTranslateApp: (TranslateApp) -> Unit,
 ) {
-    if (openDialog.value) {
+    if (openDialog) {
         AlertDialog(
             modifier = Modifier.fillMaxWidth(0.9f),
+            shape = RoundedCornerShape(16.dp),
             onDismissRequest = {
-                openDialog.value = false
+                setOpenDialog(false)
             },
-//            icon = { Icon(Icons.Filled.Settings, contentDescription = "Translate App") },
             title = {
                 Text(text = "Translate App")
             },
             text = {
-                Column {
-//                    Text(
-//                        "Choose your preferred app to translate images"
-//                    )
-                    Column(Modifier.selectableGroup()) {
-                        TranslateApp.values().forEach { translateAppOption ->
-                            Row(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp)
-                                    .selectable(
-                                        selected = (translateAppOption == translateApp),
-                                        onClick = { onChangeTranslateApp(translateAppOption) },
-                                        role = Role.RadioButton
-                                    )
-                                    .padding(horizontal = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(
+                Column(
+                    modifier = Modifier.selectableGroup().padding(start = 16.dp, top = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(32.dp)
+                ) {
+                    TranslateApp.values().forEach { translateAppOption ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .selectable(
                                     selected = (translateAppOption == translateApp),
-                                    onClick = null
-                                )
-                                Text(
-                                    text = translateAppOption.appName,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(start = 16.dp)
-                                )
-                            }
+                                    onClick = { onChangeTranslateApp(translateAppOption) },
+                                    role = Role.RadioButton
+                                ),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            RadioButton(
+                                selected = (translateAppOption == translateApp),
+                                onClick = null
+                            )
+                            Text(
+                                text = translateAppOption.appName,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
                         }
                     }
                 }
-
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        openDialog.value = false
-                    }
-                ) {
-                    Text("Confirm")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        openDialog.value = false
-                    }
-                ) {
-                    Text("Dismiss")
-                }
-            }
+            confirmButton = {}
         )
     }
 }
@@ -245,72 +223,51 @@ fun TranslateAppDialog(
 @ExperimentalMaterial3Api
 @Composable
 fun ThemeModeDialog(
-    openDialog: MutableState<Boolean>,
+    openDialog: Boolean,
+    setOpenDialog: (Boolean) -> Unit,
     themeMode: ThemeMode,
     onChangeThemeMode: (ThemeMode) -> Unit,
 ) {
-    if (openDialog.value) {
+    if (openDialog) {
         AlertDialog(
             modifier = Modifier.fillMaxWidth(0.9f),
+            shape = RoundedCornerShape(16.dp),
             onDismissRequest = {
-                openDialog.value = false
+                setOpenDialog(false)
             },
-//            icon = { Icon(Icons.Filled.Settings, contentDescription = "Translate App") },
             title = {
                 Text(text = "Theme")
             },
             text = {
-                Column {
-//                    Text(
-//                        "Choose your preferred app to translate images"
-//                    )
-                    Column(Modifier.selectableGroup()) {
-                        ThemeMode.values().forEach { themeModeOption ->
-                            Row(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp)
-                                    .selectable(
-                                        selected = (themeModeOption == themeMode),
-                                        onClick = { onChangeThemeMode(themeModeOption) },
-                                        role = Role.RadioButton
-                                    )
-                                    .padding(horizontal = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(
+                Column(
+                    modifier = Modifier.selectableGroup().padding(start = 16.dp, top = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(32.dp)
+                ) {
+                    ThemeMode.values().forEach { themeModeOption ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .selectable(
                                     selected = (themeModeOption == themeMode),
-                                    onClick = null
-                                )
-                                Text(
-                                    text = themeModeOption.modeName,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(start = 16.dp)
-                                )
-                            }
+                                    onClick = { onChangeThemeMode(themeModeOption) },
+                                    role = Role.RadioButton
+                                ),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            RadioButton(
+                                selected = (themeModeOption == themeMode),
+                                onClick = null
+                            )
+                            Text(
+                                text = themeModeOption.modeName,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
                         }
                     }
                 }
-
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        openDialog.value = false
-                    }
-                ) {
-                    Text("Confirm")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        openDialog.value = false
-                    }
-                ) {
-                    Text("Dismiss")
-                }
-            }
+            confirmButton = {}
         )
     }
 }
@@ -352,7 +309,7 @@ fun NotificationPanelSwipeUpSetting(
             }
             Row(
                 modifier = Modifier
-                    .padding(start = 16.dp, top = 4.dp, end = 16.dp)
+                    .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -368,22 +325,41 @@ fun NotificationPanelSwipeUpSetting(
                         .fillMaxWidth(0.6f),
                     enabled = useNotificationPanelSwipeUp
                 )
-                Surface(
-                    tonalElevation = 12.dp,
-                    shape = RoundedCornerShape(8.dp),
-                ) {
-                    Box(
+                if (useNotificationPanelSwipeUp) {
+                    Button(
+                        onClick = {},
+                        shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
-                            .padding(horizontal = 4.dp, vertical = 4.dp)
-                            .width(96.dp)
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
                             .height(48.dp),
-                        contentAlignment = Alignment.Center
                     ) {
-                        if (useNotificationPanelSwipeUp) {
-                            Text("$notificationPanelSwipeUpDurationState ms")
-                        }
+                        Text("$notificationPanelSwipeUpDurationState ms")
                     }
                 }
+
+//                Surface(
+//                    color = MaterialTheme.colorScheme.primary,
+//                    shape = RoundedCornerShape(8.dp),
+////                    modifier = Modifier
+////                        .padding(horizontal = 24.dp, vertical = 8.dp)
+////                        .height(48.dp),
+//                ) {
+//                    Box(
+////                        modifier = Modifier
+////                            .padding(horizontal = 4.dp, vertical = 4.dp)
+////                            .width(96.dp)
+////                            .height(48.dp),
+//                        contentAlignment = Alignment.Center
+//                    ) {
+//                        if (useNotificationPanelSwipeUp) {
+//                            Text(
+//                                text = "$notificationPanelSwipeUpDurationState ms",
+//                                modifier = Modifier
+//                                    .padding(horizontal = 24.dp, vertical = 16.dp)
+//                            )
+//                        }
+//                    }
+//                }
             }
         }
 
@@ -400,12 +376,28 @@ private fun SettingsPreview() {
                     themeMode = ThemeMode.SYSTEM,
                     translateApp = TranslateApp.GOOGLE_LENS,
                     useNotificationPanelSwipeUp = true,
-                    notificationPanelSwipeUpDuration = 250,
+                    notificationPanelSwipeUpDuration = 300,
                 ),
                 onChangeThemeMode = { },
                 onChangeTranslateApp = { },
                 onChangeUseNotificationPanelSwipeUp = { },
                 onChangeNotificationPanelSwipeUpDuration = { },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@ThemePreviews
+@Composable
+private fun ThemeModeDialogPreview() {
+    ScreenTranslatorTheme {
+        Surface {
+            ThemeModeDialog(
+                openDialog = true,
+                setOpenDialog = {},
+                themeMode = ThemeMode.SYSTEM,
+                onChangeThemeMode = {}
             )
         }
     }

@@ -41,7 +41,7 @@ class UserPreferencesDataSource @Inject constructor(
         }
         .stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, UserData(
             true,
-            250.milliseconds,
+            300.milliseconds,
             ThemeMode.SYSTEM,
             TranslateApp.GOOGLE_LENS
         ))

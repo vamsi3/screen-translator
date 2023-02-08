@@ -48,7 +48,7 @@ class ScreenTranslatorAccessibilityService : AccessibilityService() {
         val userData = userDataRepository.userData.value
         val useNotificationPanelSwipeUp = userData.useNotificationPanelSwipeUp
         val notificationPanelSwipeUpDuration = userData.notificationPanelSwipeUpDuration
-            .inWholeMilliseconds.let { if (it <= 0L) 250L else it }
+            .inWholeMilliseconds.let { if (it <= 0L) 300L else it }
 
         if (!useNotificationPanelSwipeUp) {
             takeScreenshotAndRedirectToTranslateApp()

@@ -10,7 +10,7 @@ android {
     defaultConfig {
         applicationId = "com.vamsi3.android.screentranslator"
         versionCode = 2
-        versionName = "0.0.2"
+        versionName = "0.0.3"
     }
 
     buildTypes {
