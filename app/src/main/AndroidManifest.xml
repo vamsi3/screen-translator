@@ -16,7 +16,6 @@
         android:name=".ScreenTranslatorApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="false"
         android:theme="@style/Theme.ScreenTranslator">
 
@@ -37,12 +36,15 @@
         <service
             android:name=".feature.translate.ScreenTranslatorTileService"
             android:exported="true"
-            android:icon="@drawable/ic_baseline_translate_24"
+            android:icon="@drawable/ic_translate_tile"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="false" />
         </service>
 
         <service
@@ -53,11 +55,11 @@
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
-
             <meta-data
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.vamsi3.android.screentranslator.fileProvider"

@@ -24,7 +24,7 @@ import com.vamsi3.android.screentranslator.core.design.util.ThemePreviews
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val settingsUiState by viewModel.settingsUiState.collectAsStateWithLifecycle()
+    val settingsUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     when (settingsUiState) {
         SettingsUiState.Loading -> {
@@ -38,8 +38,6 @@ fun SettingsScreen(
                 settingsData = (settingsUiState as SettingsUiState.Success).settingsData,
                 onChangeThemeMode = viewModel::setThemeMode,
                 onChangeTranslateApp = viewModel::setTranslateApp,
-                onChangeUseNotificationPanelSwipeUp = viewModel::setUseNotificationPanelSwipeUp,
-                onChangeNotificationPanelSwipeUpDuration = viewModel::setNotificationPanelSwipeUpDuration,
             )
         }
     }
@@ -50,8 +48,6 @@ fun SettingsContent(
     settingsData: SettingsData,
     onChangeThemeMode: (ThemeMode) -> Unit,
     onChangeTranslateApp: (TranslateApp) -> Unit,
-    onChangeUseNotificationPanelSwipeUp: (useNotificationPanelSwipeUp: Boolean) -> Unit,
-    onChangeNotificationPanelSwipeUpDuration: (notificationPanelSwipeUpDuration: Long) -> Unit,
 ) {
 
     Column(
@@ -66,12 +62,6 @@ fun SettingsContent(
         TranslateAppSetting(
             translateApp = settingsData.translateApp,
             onChangeTranslateApp = onChangeTranslateApp
-        )
-        NotificationPanelSwipeUpSetting(
-            settingsData.useNotificationPanelSwipeUp,
-            onChangeUseNotificationPanelSwipeUp,
-            settingsData.notificationPanelSwipeUpDuration,
-            onChangeNotificationPanelSwipeUpDuration
         )
     }
 }
@@ -170,58 +160,6 @@ fun TranslateAppSetting(
 
 @ExperimentalMaterial3Api
 @Composable
-fun TranslateAppDialog(
-    openDialog: Boolean,
-    setOpenDialog: (Boolean) -> Unit,
-    translateApp: TranslateApp,
-    onChangeTranslateApp: (TranslateApp) -> Unit,
-) {
-    if (openDialog) {
-        AlertDialog(
-            modifier = Modifier.fillMaxWidth(0.9f),
-            shape = RoundedCornerShape(16.dp),
-            onDismissRequest = {
-                setOpenDialog(false)
-            },
-            title = {
-                Text(text = "Translate App")
-            },
-            text = {
-                Column(
-                    modifier = Modifier.selectableGroup().padding(start = 16.dp, top = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(32.dp)
-                ) {
-                    TranslateApp.values().forEach { translateAppOption ->
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .selectable(
-                                    selected = (translateAppOption == translateApp),
-                                    onClick = { onChangeTranslateApp(translateAppOption) },
-                                    role = Role.RadioButton
-                                ),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            RadioButton(
-                                selected = (translateAppOption == translateApp),
-                                onClick = null
-                            )
-                            Text(
-                                text = translateAppOption.appName,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-                    }
-                }
-            },
-            confirmButton = {}
-        )
-    }
-}
-
-@ExperimentalMaterial3Api
-@Composable
 fun ThemeModeDialog(
     openDialog: Boolean,
     setOpenDialog: (Boolean) -> Unit,
@@ -272,97 +210,55 @@ fun ThemeModeDialog(
     }
 }
 
-
+@ExperimentalMaterial3Api
 @Composable
-fun NotificationPanelSwipeUpSetting(
-    useNotificationPanelSwipeUp: Boolean,
-    onChangeUseNotificationPanelSwipeUp: (useNotificationPanelSwipeUp: Boolean) -> Unit,
-    notificationPanelSwipeUpDuration: Long,
-    onChangeNotificationPanelSwipeUpDuration: (notificationPanelSwipeUpDuration: Long) -> Unit,
+fun TranslateAppDialog(
+    openDialog: Boolean,
+    setOpenDialog: (Boolean) -> Unit,
+    translateApp: TranslateApp,
+    onChangeTranslateApp: (TranslateApp) -> Unit,
 ) {
-    Surface(
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth(),
-        tonalElevation = 4.dp,
-        shadowElevation = 8.dp,
-        shape = RoundedCornerShape(8.dp),
-    ) {
-        Column(
-
-        ) {
-            var notificationPanelSwipeUpDurationState by remember { mutableStateOf(notificationPanelSwipeUpDuration) }
-
-            Row(
-                modifier = Modifier
-                    .padding(start = 16.dp, top = 8.dp, end = 16.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text("Notification Panel Swipe", style = MaterialTheme.typography.titleMedium)
-                Switch(
-                    modifier = Modifier.padding(0.dp),
-                    checked = useNotificationPanelSwipeUp,
-                    onCheckedChange = onChangeUseNotificationPanelSwipeUp,
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Slider(
-                    value = notificationPanelSwipeUpDurationState.toFloat(),
-                    onValueChange = { notificationPanelSwipeUpDurationState = it.toLong() },
-                    onValueChangeFinished = { onChangeNotificationPanelSwipeUpDuration(notificationPanelSwipeUpDurationState) },
-                    valueRange = 100f..1000f,
-                    steps = 8,
-                    modifier = Modifier
-                        .padding(vertical = 16.dp)
-                        .fillMaxWidth(0.6f),
-                    enabled = useNotificationPanelSwipeUp
-                )
-                if (useNotificationPanelSwipeUp) {
-                    Button(
-                        onClick = {},
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
-                            .height(48.dp),
-                    ) {
-                        Text("$notificationPanelSwipeUpDurationState ms")
+    if (openDialog) {
+        AlertDialog(
+            modifier = Modifier.fillMaxWidth(0.9f),
+            shape = RoundedCornerShape(16.dp),
+            onDismissRequest = {
+                setOpenDialog(false)
+            },
+            title = {
+                Text(text = "Translate App")
+            },
+            text = {
+                Column(
+                    modifier = Modifier.selectableGroup().padding(start = 16.dp, top = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(32.dp)
+                ) {
+                    TranslateApp.values().forEach { translateAppOption ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = (translateAppOption == translateApp),
+                                    onClick = { onChangeTranslateApp(translateAppOption) },
+                                    role = Role.RadioButton
+                                ),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            RadioButton(
+                                selected = (translateAppOption == translateApp),
+                                onClick = null
+                            )
+                            Text(
+                                text = translateAppOption.appName,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
                     }
                 }
-
-//                Surface(
-//                    color = MaterialTheme.colorScheme.primary,
-//                    shape = RoundedCornerShape(8.dp),
-////                    modifier = Modifier
-////                        .padding(horizontal = 24.dp, vertical = 8.dp)
-////                        .height(48.dp),
-//                ) {
-//                    Box(
-////                        modifier = Modifier
-////                            .padding(horizontal = 4.dp, vertical = 4.dp)
-////                            .width(96.dp)
-////                            .height(48.dp),
-//                        contentAlignment = Alignment.Center
-//                    ) {
-//                        if (useNotificationPanelSwipeUp) {
-//                            Text(
-//                                text = "$notificationPanelSwipeUpDurationState ms",
-//                                modifier = Modifier
-//                                    .padding(horizontal = 24.dp, vertical = 16.dp)
-//                            )
-//                        }
-//                    }
-//                }
-            }
-        }
-
+            },
+            confirmButton = {}
+        )
     }
 }
 
@@ -375,13 +271,9 @@ private fun SettingsPreview() {
                 settingsData = SettingsData(
                     themeMode = ThemeMode.SYSTEM,
                     translateApp = TranslateApp.GOOGLE_LENS,
-                    useNotificationPanelSwipeUp = true,
-                    notificationPanelSwipeUpDuration = 300,
                 ),
                 onChangeThemeMode = { },
                 onChangeTranslateApp = { },
-                onChangeUseNotificationPanelSwipeUp = { },
-                onChangeNotificationPanelSwipeUpDuration = { },
             )
         }
     }

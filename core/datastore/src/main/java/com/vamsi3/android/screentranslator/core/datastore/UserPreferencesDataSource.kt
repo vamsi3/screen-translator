@@ -19,8 +19,6 @@ class UserPreferencesDataSource @Inject constructor(
     val userData = userPreferencesProto.data
         .map {
             UserData(
-                useNotificationPanelSwipeUp = it.useNotificationPanelSwipeUp,
-                notificationPanelSwipeUpDuration = it.notificationPanelSwipeUpDurationMilliseconds.milliseconds,
                 themeMode = when(it.userThemePreference) {
                     null,
                     UserThemePreferenceProto.UNRECOGNIZED,
@@ -40,27 +38,9 @@ class UserPreferencesDataSource @Inject constructor(
             )
         }
         .stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, UserData(
-            true,
-            300.milliseconds,
             ThemeMode.SYSTEM,
             TranslateApp.GOOGLE_LENS
         ))
-
-    suspend fun setUseNotificationPanelSwipeUp(useNotificationPanelSwipeUp: Boolean) {
-        userPreferencesProto.updateData {
-            it.copy {
-                this.useNotificationPanelSwipeUp = useNotificationPanelSwipeUp
-            }
-        }
-    }
-
-    suspend fun setNotificationPanelSwipeUpDuration(notificationPanelSwipeUpDuration: Duration) {
-        userPreferencesProto.updateData {
-            it.copy {
-                this.notificationPanelSwipeUpDurationMilliseconds = notificationPanelSwipeUpDuration.inWholeMilliseconds.toInt()
-            }
-        }
-    }
 
     suspend fun setThemeMode(themeMode: ThemeMode) {
         userPreferencesProto.updateData {

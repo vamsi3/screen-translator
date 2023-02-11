@@ -12,12 +12,6 @@ class OfflineFirstUserDataRepository @Inject constructor(
 
     override val userData = userPreferencesDataSource.userData
 
-    override suspend fun setUseNotificationPanelSwipeUp(useNotificationPanelSwipeUp: Boolean) =
-        userPreferencesDataSource.setUseNotificationPanelSwipeUp(useNotificationPanelSwipeUp)
-
-    override suspend fun setNotificationPanelSwipeUpDuration(notificationPanelSwipeUpDuration: Duration) =
-        userPreferencesDataSource.setNotificationPanelSwipeUpDuration(notificationPanelSwipeUpDuration)
-
     override suspend fun setThemeMode(themeMode: ThemeMode) =
         userPreferencesDataSource.setThemeMode(themeMode)
 

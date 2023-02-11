@@ -9,10 +9,6 @@ import kotlin.time.Duration
 interface UserDataRepository {
     val userData: StateFlow<UserData>
 
-    suspend fun setUseNotificationPanelSwipeUp(useNotificationPanelSwipeUp: Boolean)
-
-    suspend fun setNotificationPanelSwipeUpDuration(notificationPanelSwipeUpDuration: Duration)
-
     suspend fun setThemeMode(themeMode: ThemeMode)
 
     suspend fun setTranslateApp(translateApp: TranslateApp)

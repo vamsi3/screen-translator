@@ -20,6 +20,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vamsi3.android.screentranslator.core.data.model.ThemeMode
 import com.vamsi3.android.screentranslator.core.design.theme.ScreenTranslatorTheme
 import com.vamsi3.android.screentranslator.core.design.util.ThemePreviews
+import com.vamsi3.android.screentranslator.core.resource.R
 import com.vamsi3.android.screentranslator.feature.settings.SettingsScreen
 import com.vamsi3.android.screentranslator.feature.settings.SettingsUiState
 import com.vamsi3.android.screentranslator.feature.settings.SettingsViewModel
@@ -29,7 +30,7 @@ import com.vamsi3.android.screentranslator.feature.settings.SettingsViewModel
 fun HomeScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val settingsUiState by viewModel.settingsUiState.collectAsStateWithLifecycle()
+    val settingsUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     when (settingsUiState) {
         SettingsUiState.Loading -> {

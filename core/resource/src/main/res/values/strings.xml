@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Screen Translator</string>
+
+    <string name="enable_screen_translator">Enable \'Screen Translator\'</string>
+    <string name="translation_failed">Translation failed</string>
+    <string name="translate_tile_label">Screen Translator</string>
+
+    <string name="translator_accessibility_service_html_description">
+        &lt;p&gt;This permission is used only for the sole purpose of letting you quickly translate your screen. The app needs this permission to:&lt;br /&gt;&lt;/p&gt;
+            &lt;p&gt;&lt;br /&gt;1. Collapse Notification Shade&lt;/p&gt;
+            &lt;p&gt;&lt;br /&gt;2. Capture screen for translation&lt;/p&gt;
+        &lt;p&gt;&lt;br /&gt;&lt;u&gt;Our accessibility service does neither collect nor share any data&lt;/u&gt;&lt;/p&gt;
+    </string>
+    <string name="translator_accessibility_service_intro">Quickly translate your screen using the app!</string>
+    <string name="translator_accessibility_service_summary">For quick translation</string>
+
+    <string name="top_bar_favorite_description">Click to open the GitHub link this app</string>
+    <string name="top_bar_favorite_url">https://github.com/vamsi3/screen-translator</string>
+</resources>

@@ -11,6 +11,7 @@ android {
 dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:model"))
+    implementation(project(":core:resource"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.hilt.navigation.compose)
 }

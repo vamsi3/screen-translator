@@ -6,7 +6,6 @@ import android.service.quicksettings.TileService
 
 class ScreenTranslatorTileService : TileService() {
     override fun onClick() {
-
         super.onClick()
 
         val accessibilityPermissionGranted = isScreenTranslatorAccessibilityServiceEnabled(application)

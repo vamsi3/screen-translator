@@ -12,7 +12,7 @@ Notice that using the Screen Translator app is much quicker than the traditional
 
 1. When user touches the quick settings tile, an intent is sent by `ScreenTranslatorTileService::onClick` to trigger `ScreenTranslatorAccessibilityService::onStartCommand`
 2. If the user didn't give accessibility permissions yet, they are <u>redirected to accessibility settings page</u>.
-3. If the accessibility permissions are present, a <u>swipe up gesture is sent</u> to system uisng accessiblity service to collapse notification panel from which quick settings tile was triggered.
+3. If the accessibility permissions are present, notification panel collapse request is send to system.
 4. Finally, a <u>screenshot is taken</u> using accessiblity service and sent to Papago / Google Lens app for further translation inside their app's activity.
 5. If Papago / Google Lens app is not installed in the system, user is notified of the same through a toast.
 

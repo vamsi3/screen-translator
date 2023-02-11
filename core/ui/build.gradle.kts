@@ -10,6 +10,7 @@ android {
 dependencies {
     implementation(project(":core:design"))
     implementation(project(":core:model"))
+    implementation(project(":core:resource"))
     implementation(project(":feature:settings"))
 
     api(libs.androidx.compose.foundation)
