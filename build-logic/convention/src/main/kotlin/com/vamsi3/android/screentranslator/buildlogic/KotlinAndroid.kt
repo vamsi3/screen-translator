@@ -37,6 +37,7 @@ internal fun Project.configureKotlinAndroid(
                 "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
                 "-opt-in=kotlinx.coroutines.FlowPreview",
                 "-opt-in=kotlin.Experimental",
+                "-opt-in=kotlin.time.ExperimentalTime",
             )
             jvmTarget = JavaVersion.VERSION_11.toString()
         }

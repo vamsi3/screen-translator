@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -15,25 +16,30 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.vamsi3.android.screentranslator.core.data.model.ThemeMode
+import com.vamsi3.android.screentranslator.core.data.model.TranslateApp
 import com.vamsi3.android.screentranslator.core.ui.HomeScreen
 import com.vamsi3.android.screentranslator.feature.translate.ScreenTranslatorTileService
 import com.vamsi3.android.screentranslator.core.resource.R
+import com.vamsi3.android.screentranslator.feature.settings.SettingsData
 import com.vamsi3.android.screentranslator.feature.settings.SettingsUiState
 import com.vamsi3.android.screentranslator.feature.settings.SettingsUiState.Loading
 import com.vamsi3.android.screentranslator.feature.settings.SettingsUiState.Success
 import com.vamsi3.android.screentranslator.feature.settings.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    val viewModel: SettingsViewModel by viewModels()
+    private val viewModel: SettingsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        val splashScreen = installSplashScreen()
 
         var uiState: SettingsUiState by mutableStateOf(Loading)
 
@@ -46,12 +52,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        splashScreen.setKeepOnScreenCondition {
-            when (uiState) {
-                Loading -> true
-                is Success -> false
-            }
-        }
+        splashScreen.setKeepOnScreenCondition { uiState == Loading }
 
         setContent {
             HomeScreen()

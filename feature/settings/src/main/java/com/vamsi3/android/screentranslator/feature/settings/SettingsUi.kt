@@ -8,7 +8,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -18,6 +17,7 @@ import com.vamsi3.android.screentranslator.core.data.model.ThemeMode
 import com.vamsi3.android.screentranslator.core.data.model.TranslateApp
 import com.vamsi3.android.screentranslator.core.design.theme.ScreenTranslatorTheme
 import com.vamsi3.android.screentranslator.core.design.util.ThemePreviews
+import com.vamsi3.android.screentranslator.feature.settings.SettingsUiState.Success
 
 @ExperimentalLifecycleComposeApi
 @Composable
@@ -26,20 +26,13 @@ fun SettingsScreen(
 ) {
     val settingsUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    when (settingsUiState) {
-        SettingsUiState.Loading -> {
-            Text(
-                text = stringResource(R.string.loading),
-                modifier = Modifier.padding(vertical = 16.dp)
-            )
-        }
-        is SettingsUiState.Success -> {
-            SettingsContent(
-                settingsData = (settingsUiState as SettingsUiState.Success).settingsData,
-                onChangeThemeMode = viewModel::setThemeMode,
-                onChangeTranslateApp = viewModel::setTranslateApp,
-            )
-        }
+    if (settingsUiState is Success) {
+        SettingsContent(
+            settingsData = (settingsUiState as Success).settingsData,
+            onChangeThemeMode = viewModel::setThemeMode,
+            onChangeTranslateApp = viewModel::setTranslateApp,
+            onChangeNotificationShadeCollapseDelayDuration = viewModel::setNotificationShadeCollapseDelayDuration,
+        )
     }
 }
 
@@ -48,6 +41,7 @@ fun SettingsContent(
     settingsData: SettingsData,
     onChangeThemeMode: (ThemeMode) -> Unit,
     onChangeTranslateApp: (TranslateApp) -> Unit,
+    onChangeNotificationShadeCollapseDelayDuration: (Long) -> Unit,
 ) {
 
     Column(
@@ -62,6 +56,10 @@ fun SettingsContent(
         TranslateAppSetting(
             translateApp = settingsData.translateApp,
             onChangeTranslateApp = onChangeTranslateApp
+        )
+        NotificationShadeCollapseSetting(
+            settingsData.notificationShadeCollapseDelayDuration,
+            onChangeNotificationShadeCollapseDelayDuration,
         )
     }
 }
@@ -178,7 +176,9 @@ fun ThemeModeDialog(
             },
             text = {
                 Column(
-                    modifier = Modifier.selectableGroup().padding(start = 16.dp, top = 16.dp),
+                    modifier = Modifier
+                        .selectableGroup()
+                        .padding(start = 16.dp, top = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(32.dp)
                 ) {
                     ThemeMode.values().forEach { themeModeOption ->
@@ -230,7 +230,9 @@ fun TranslateAppDialog(
             },
             text = {
                 Column(
-                    modifier = Modifier.selectableGroup().padding(start = 16.dp, top = 16.dp),
+                    modifier = Modifier
+                        .selectableGroup()
+                        .padding(start = 16.dp, top = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(32.dp)
                 ) {
                     TranslateApp.values().forEach { translateAppOption ->
@@ -262,6 +264,82 @@ fun TranslateAppDialog(
     }
 }
 
+@Composable
+fun NotificationShadeCollapseSetting(
+    notificationShadeCollapseDelayDuration: Long,
+    onChangeNotificationShadeCollapseDelayDuration: (Long) -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth(),
+        tonalElevation = 4.dp,
+        shadowElevation = 8.dp,
+        shape = RoundedCornerShape(8.dp),
+    ) {
+        var notificationShadeCollapseDelayDurationState by remember { mutableStateOf(notificationShadeCollapseDelayDuration) }
+        var isNotificationShadeCollapseEnabled by remember { mutableStateOf(notificationShadeCollapseDelayDurationState != 0L) }
+
+        Column {
+            Row(
+                modifier = Modifier
+                    .padding(start = 16.dp, top = 8.dp, end = 16.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text("Notification Shade Delay", style = MaterialTheme.typography.titleMedium)
+                Switch(
+                    modifier = Modifier.padding(0.dp),
+                    checked = isNotificationShadeCollapseEnabled,
+                    onCheckedChange = {
+                        isNotificationShadeCollapseEnabled = !isNotificationShadeCollapseEnabled
+                        onChangeNotificationShadeCollapseDelayDuration(
+                            if (isNotificationShadeCollapseEnabled) notificationShadeCollapseDelayDurationState else 0L
+                        )
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Slider(
+                    value = notificationShadeCollapseDelayDurationState.toFloat(),
+                    onValueChange = { notificationShadeCollapseDelayDurationState = it.toLong() },
+                    onValueChangeFinished = {
+                        isNotificationShadeCollapseEnabled = notificationShadeCollapseDelayDurationState != 0L
+                        onChangeNotificationShadeCollapseDelayDuration(
+                            notificationShadeCollapseDelayDurationState
+                        )
+                    },
+                    valueRange = 0f..900f,
+                    steps = 8,
+                    modifier = Modifier
+                        .padding(vertical = 16.dp)
+                        .fillMaxWidth(0.6f),
+                    enabled = isNotificationShadeCollapseEnabled
+                )
+                if (isNotificationShadeCollapseEnabled) {
+                    Button(
+                        enabled = false,
+                        onClick = {},
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .height(48.dp),
+                    ) {
+                        Text("$notificationShadeCollapseDelayDurationState ms")
+                    }
+                }
+            }
+        }
+    }
+}
+
 @ThemePreviews
 @Composable
 private fun SettingsPreview() {
@@ -271,9 +349,11 @@ private fun SettingsPreview() {
                 settingsData = SettingsData(
                     themeMode = ThemeMode.SYSTEM,
                     translateApp = TranslateApp.GOOGLE_LENS,
+                    notificationShadeCollapseDelayDuration = 300L,
                 ),
                 onChangeThemeMode = { },
                 onChangeTranslateApp = { },
+                onChangeNotificationShadeCollapseDelayDuration = { }
             )
         }
     }

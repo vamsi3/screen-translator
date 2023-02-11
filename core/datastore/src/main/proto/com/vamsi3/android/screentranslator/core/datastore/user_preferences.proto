@@ -7,6 +7,7 @@ option java_package = "com.vamsi3.android.screentranslator.core.datastore";
 option java_multiple_files = true;
 
 message UserPreferencesProto {
+    int32 notification_shade_collapse_delay_milliseconds = 2;
     UserThemePreferenceProto user_theme_preference = 3;
     UserTranslateAppPreferenceProto user_translate_app_preference = 4;
 }

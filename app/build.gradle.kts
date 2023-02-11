@@ -9,8 +9,8 @@ android {
 
     defaultConfig {
         applicationId = "com.vamsi3.android.screentranslator"
-        versionCode = 4
-        versionName = "0.0.4"
+        versionCode = 5
+        versionName = "0.0.5"
     }
 
     buildTypes {
@@ -26,12 +26,13 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:ui"))
+    implementation(project(":core:model"))
     implementation(project(":core:resource"))
+    implementation(project(":core:ui"))
     implementation(project(":feature:settings"))
     implementation(project(":feature:translate"))
-    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.compose.material.icons)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.hilt.navigation.compose)
 }

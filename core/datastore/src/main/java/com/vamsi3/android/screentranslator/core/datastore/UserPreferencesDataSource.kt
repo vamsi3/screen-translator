@@ -1,5 +1,6 @@
 package com.vamsi3.android.screentranslator.core.datastore
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import com.vamsi3.android.screentranslator.core.data.model.ThemeMode
 import com.vamsi3.android.screentranslator.core.data.model.TranslateApp
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.milliseconds
 
 class UserPreferencesDataSource @Inject constructor(
     private val userPreferencesProto: DataStore<UserPreferencesProto>,
@@ -19,6 +20,7 @@ class UserPreferencesDataSource @Inject constructor(
     val userData = userPreferencesProto.data
         .map {
             UserData(
+                notificationShadeCollapseDelayDuration = it.notificationShadeCollapseDelayMilliseconds.milliseconds,
                 themeMode = when(it.userThemePreference) {
                     null,
                     UserThemePreferenceProto.UNRECOGNIZED,
@@ -37,10 +39,20 @@ class UserPreferencesDataSource @Inject constructor(
                 },
             )
         }
-        .stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, UserData(
-            ThemeMode.SYSTEM,
-            TranslateApp.GOOGLE_LENS
-        ))
+        .stateIn(
+            scope = CoroutineScope(Dispatchers.IO),
+            started = SharingStarted.Eagerly,
+            initialValue = null
+        )
+
+    suspend fun setNotificationShadeCollapseDelayDuration(notificationShadeCollapseDelayDuration: Duration) {
+        userPreferencesProto.updateData {
+            it.copy {
+                Log.i("ScreenTranslator", "updating to $notificationShadeCollapseDelayDuration")
+                this.notificationShadeCollapseDelayMilliseconds = notificationShadeCollapseDelayDuration.inWholeMilliseconds.toInt()
+            }
+        }
+    }
 
     suspend fun setThemeMode(themeMode: ThemeMode) {
         userPreferencesProto.updateData {

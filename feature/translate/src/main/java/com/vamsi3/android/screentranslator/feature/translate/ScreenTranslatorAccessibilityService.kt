@@ -8,17 +8,27 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.util.Log
 import android.view.Display
 import android.view.accessibility.AccessibilityEvent
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import androidx.lifecycle.viewModelScope
+import com.vamsi3.android.screentranslator.core.data.model.ThemeMode
 import com.vamsi3.android.screentranslator.core.data.model.TranslateApp
+import com.vamsi3.android.screentranslator.core.data.model.UserData
 import com.vamsi3.android.screentranslator.core.data.repository.UserDataRepository
 import com.vamsi3.android.screentranslator.core.resource.R
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
+import kotlin.time.Duration
 
 const val FILE_PROVIDER_AUTHORITY = "com.vamsi3.android.screentranslator.fileProvider"
 const val PACKAGE_ANDROID_SYSTEM_UI = "com.android.systemui"
@@ -26,7 +36,9 @@ const val MIME_TYPE_JPEG = "image/jpeg"
 const val SCREENSHOT_FILE_NAME = "screenshot.jpg"
 
 @AndroidEntryPoint
-class ScreenTranslatorAccessibilityService : AccessibilityService() {
+class ScreenTranslatorAccessibilityService : AccessibilityService(){
+
+    private val scope = CoroutineScope(Dispatchers.IO)
 
     @Inject
     lateinit var userDataRepository: UserDataRepository
@@ -80,6 +92,11 @@ class ScreenTranslatorAccessibilityService : AccessibilityService() {
                 applicationContext.sendBroadcast(intent)
             }
         }
+
+        Log.i("ScreenTranslator", "dismissNotificationShade: ${userDataRepository.userData.value?.notificationShadeCollapseDelayDuration}")
+
+        val delay = userDataRepository.userData.value?.notificationShadeCollapseDelayDuration ?: Duration.ZERO
+        Thread.sleep(delay.inWholeMilliseconds)
     }
 
     private fun enableWindowStateChangedEvents() {
@@ -136,7 +153,7 @@ class ScreenTranslatorAccessibilityService : AccessibilityService() {
     }
 
     private fun forwardScreenshotToTranslateApp(file: File) {
-        val translateApp = userDataRepository.userData.value.translateApp
+        val translateApp = userDataRepository.userData.value?.translateApp ?: TranslateApp.default
 
         val uri = FileProvider.getUriForFile(
             application,

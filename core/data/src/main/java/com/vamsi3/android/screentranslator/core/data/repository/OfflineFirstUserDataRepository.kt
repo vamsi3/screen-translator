@@ -18,4 +18,7 @@ class OfflineFirstUserDataRepository @Inject constructor(
     override suspend fun setTranslateApp(translateApp: TranslateApp) =
         userPreferencesDataSource.setTranslateApp(translateApp)
 
+    override suspend fun setNotificationShadeCollapseDelayDuration(notificationShadeCollapseDelayDuration: Duration) =
+        userPreferencesDataSource.setNotificationShadeCollapseDelayDuration(notificationShadeCollapseDelayDuration)
+
 }

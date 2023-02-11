@@ -6,6 +6,7 @@ import kotlin.time.Duration
  * Class summarizing user interest data
  */
 data class UserData(
+    val notificationShadeCollapseDelayDuration: Duration,
     val themeMode: ThemeMode,
     val translateApp: TranslateApp,
 )
