@@ -6,6 +6,8 @@ pluginManagement {
         mavenCentral()
     }
 }
+
+@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -15,6 +17,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "screen-translator"
+
 include(":app")
 include(":core:datastore")
 include(":core:data")

@@ -4,8 +4,8 @@ option java_package = "com.vamsi3.android.screentranslator.core.datastore";
 option java_multiple_files = true;
 
 enum UserThemePreferenceProto {
-  UNSPECIFIED_THEME = 0;
-  SYSTEM = 1;
-  LIGHT = 2;
-  DARK = 3;
+  THEME_UNSPECIFIED = 0;
+  THEME_SYSTEM = 1;
+  THEME_LIGHT = 2;
+  THEME_DARK = 3;
 }

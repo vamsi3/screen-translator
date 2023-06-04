@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 import kotlin.time.Duration
-import kotlin.time.milliseconds
+import kotlin.time.Duration.Companion.milliseconds
 
 class UserPreferencesDataSource @Inject constructor(
     private val userPreferencesProto: DataStore<UserPreferencesProto>,
@@ -24,18 +24,20 @@ class UserPreferencesDataSource @Inject constructor(
                 themeMode = when(it.userThemePreference) {
                     null,
                     UserThemePreferenceProto.UNRECOGNIZED,
-                    UserThemePreferenceProto.UNSPECIFIED_THEME,
-                    UserThemePreferenceProto.SYSTEM -> ThemeMode.SYSTEM
-                    UserThemePreferenceProto.DARK -> ThemeMode.DARK
-                    UserThemePreferenceProto.LIGHT -> ThemeMode.LIGHT
+                    UserThemePreferenceProto.THEME_UNSPECIFIED,
+                    UserThemePreferenceProto.THEME_SYSTEM -> ThemeMode.SYSTEM
+                    UserThemePreferenceProto.THEME_DARK -> ThemeMode.DARK
+                    UserThemePreferenceProto.THEME_LIGHT -> ThemeMode.LIGHT
                 },
                 translateApp = when(it.userTranslateAppPreference) {
                     null,
                     UserTranslateAppPreferenceProto.UNRECOGNIZED,
-                    UserTranslateAppPreferenceProto.UNSPECIFIED_TRANSLATE_APP,
-                    UserTranslateAppPreferenceProto.GOOGLE_LENS -> TranslateApp.GOOGLE_LENS
-                    UserTranslateAppPreferenceProto.NAVER_PAPAGO -> TranslateApp.NAVER_PAPAGO
-                    UserTranslateAppPreferenceProto.DEEPL_TRANSLATE -> TranslateApp.DEEPL_TRANSLATE
+                    UserTranslateAppPreferenceProto.TRANSLATE_APP_UNSPECIFIED,
+                    UserTranslateAppPreferenceProto.TRANSLATE_APP_GOOGLE -> TranslateApp.GOOGLE
+
+                    UserTranslateAppPreferenceProto.TRANSLATE_APP_DEEPL_TRANSLATE -> TranslateApp.DEEPL_TRANSLATE
+                    UserTranslateAppPreferenceProto.TRANSLATE_APP_GOOGLE_LENS -> TranslateApp.GOOGLE_LENS
+                    UserTranslateAppPreferenceProto.TRANSLATE_APP_NAVER_PAPAGO -> TranslateApp.NAVER_PAPAGO
                 },
             )
         }
@@ -58,9 +60,9 @@ class UserPreferencesDataSource @Inject constructor(
         userPreferencesProto.updateData {
             it.copy {
                 this.userThemePreference = when (themeMode) {
-                    ThemeMode.SYSTEM -> UserThemePreferenceProto.SYSTEM
-                    ThemeMode.LIGHT -> UserThemePreferenceProto.LIGHT
-                    ThemeMode.DARK -> UserThemePreferenceProto.DARK
+                    ThemeMode.SYSTEM -> UserThemePreferenceProto.THEME_SYSTEM
+                    ThemeMode.LIGHT -> UserThemePreferenceProto.THEME_LIGHT
+                    ThemeMode.DARK -> UserThemePreferenceProto.THEME_DARK
                 }
             }
         }
@@ -70,9 +72,10 @@ class UserPreferencesDataSource @Inject constructor(
         userPreferencesProto.updateData {
             it.copy {
                 this.userTranslateAppPreference = when (translateApp) {
-                    TranslateApp.GOOGLE_LENS -> UserTranslateAppPreferenceProto.GOOGLE_LENS
-                    TranslateApp.NAVER_PAPAGO -> UserTranslateAppPreferenceProto.NAVER_PAPAGO
-                    TranslateApp.DEEPL_TRANSLATE -> UserTranslateAppPreferenceProto.DEEPL_TRANSLATE
+                    TranslateApp.DEEPL_TRANSLATE -> UserTranslateAppPreferenceProto.TRANSLATE_APP_DEEPL_TRANSLATE
+                    TranslateApp.GOOGLE -> UserTranslateAppPreferenceProto.TRANSLATE_APP_GOOGLE
+                    TranslateApp.GOOGLE_LENS -> UserTranslateAppPreferenceProto.TRANSLATE_APP_GOOGLE_LENS
+                    TranslateApp.NAVER_PAPAGO -> UserTranslateAppPreferenceProto.TRANSLATE_APP_NAVER_PAPAGO
                 }
             }
         }

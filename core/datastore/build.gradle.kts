@@ -1,10 +1,6 @@
-import com.google.protobuf.gradle.generateProtoTasks
-import com.google.protobuf.gradle.protobuf
-import com.google.protobuf.gradle.protoc
-
 plugins {
-    id("screentranslator.build.android.library")
-    id("screentranslator.build.android.hilt")
+    id("com.vamsi3.android.screentranslator.gradle.plugin.android-library")
+    id("com.vamsi3.android.screentranslator.gradle.plugin.android-hilt")
     alias(libs.plugins.protobuf)
 }
 

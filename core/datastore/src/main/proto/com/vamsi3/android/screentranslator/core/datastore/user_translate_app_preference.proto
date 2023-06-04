@@ -4,8 +4,9 @@ option java_package = "com.vamsi3.android.screentranslator.core.datastore";
 option java_multiple_files = true;
 
 enum UserTranslateAppPreferenceProto {
-  UNSPECIFIED_TRANSLATE_APP = 0;
-  GOOGLE_LENS = 1;
-  NAVER_PAPAGO = 2;
-  DEEPL_TRANSLATE = 3;
+  TRANSLATE_APP_UNSPECIFIED = 0;
+  TRANSLATE_APP_GOOGLE = 1;
+  TRANSLATE_APP_GOOGLE_LENS = 2;
+  TRANSLATE_APP_NAVER_PAPAGO = 3;
+  TRANSLATE_APP_DEEPL_TRANSLATE = 4;
 }

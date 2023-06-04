@@ -1,5 +1,6 @@
 package com.vamsi3.android.screentranslator.feature.translate
 
+import android.accessibilityservice.AccessibilityButtonController
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.ActivityNotFoundException
@@ -13,27 +14,20 @@ import android.view.Display
 import android.view.accessibility.AccessibilityEvent
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import androidx.lifecycle.viewModelScope
-import com.vamsi3.android.screentranslator.core.data.model.ThemeMode
 import com.vamsi3.android.screentranslator.core.data.model.TranslateApp
-import com.vamsi3.android.screentranslator.core.data.model.UserData
 import com.vamsi3.android.screentranslator.core.data.repository.UserDataRepository
 import com.vamsi3.android.screentranslator.core.resource.R
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.io.FileOutputStream
+import java.util.UUID
 import javax.inject.Inject
 import kotlin.time.Duration
 
-const val FILE_PROVIDER_AUTHORITY = "com.vamsi3.android.screentranslator.fileProvider"
 const val PACKAGE_ANDROID_SYSTEM_UI = "com.android.systemui"
 const val MIME_TYPE_JPEG = "image/jpeg"
-const val SCREENSHOT_FILE_NAME = "screenshot.jpg"
 
 @AndroidEntryPoint
 class ScreenTranslatorAccessibilityService : AccessibilityService(){
@@ -42,6 +36,45 @@ class ScreenTranslatorAccessibilityService : AccessibilityService(){
 
     @Inject
     lateinit var userDataRepository: UserDataRepository
+
+//    private var mAccessibilityButtonController: AccessibilityButtonController? = null
+//    private var accessibilityButtonCallback: AccessibilityButtonController.AccessibilityButtonCallback? = null
+//    private var mIsAccessibilityButtonAvailable: Boolean = false
+
+    override fun onServiceConnected() {
+//        mAccessibilityButtonController = accessibilityButtonController
+////        mIsAccessibilityButtonAvailable = mAccessibilityButtonController?.isAccessibilityButtonAvailable ?: false
+////
+////        if (!mIsAccessibilityButtonAvailable) return
+//
+//        serviceInfo = serviceInfo.apply {
+//            flags = flags or AccessibilityServiceInfo.FLAG_REQUEST_ACCESSIBILITY_BUTTON
+//        }
+//
+//        accessibilityButtonCallback =
+//            object : AccessibilityButtonController.AccessibilityButtonCallback() {
+//                override fun onClicked(controller: AccessibilityButtonController) {
+//                    Log.i("ScreenTranslator", "Accessibility button pressed!")
+//
+//                    // Add custom logic for a service to react to the
+//                    // accessibility button being pressed.
+//                }
+//
+//                override fun onAvailabilityChanged(
+//                    controller: AccessibilityButtonController,
+//                    available: Boolean
+//                ) {
+//                    Log.i("ScreenTranslator", "Accessibility AvailabilityChanged!")
+//                    if (controller == mAccessibilityButtonController) {
+//                        mIsAccessibilityButtonAvailable = available
+//                    }
+//                }
+//            }
+//
+//        accessibilityButtonCallback?.also {
+//            mAccessibilityButtonController?.registerAccessibilityButtonCallback(it)
+//        }
+    }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         translateScreen()
@@ -56,7 +89,9 @@ class ScreenTranslatorAccessibilityService : AccessibilityService(){
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
 
-        disableEvents()
+//        Log.i("ScreenTranslator", "event: $event")
+
+        disableWindowStateChangedEvents()
 
         if (event.packageName.equals(PACKAGE_ANDROID_SYSTEM_UI) &&
             event.text.any { it.contains("Notification shade") }
@@ -101,17 +136,17 @@ class ScreenTranslatorAccessibilityService : AccessibilityService(){
 
     private fun enableWindowStateChangedEvents() {
         serviceInfo = serviceInfo.apply {
-            eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
-            packageNames = arrayOf(PACKAGE_ANDROID_SYSTEM_UI)
-            flags = AccessibilityServiceInfo.DEFAULT
+            eventTypes = eventTypes or AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
+            packageNames = packageNames?.plusElement(PACKAGE_ANDROID_SYSTEM_UI) ?: arrayOf(PACKAGE_ANDROID_SYSTEM_UI)
+            flags = flags or AccessibilityServiceInfo.DEFAULT
         }
     }
 
-    private fun disableEvents() {
+    private fun disableWindowStateChangedEvents() {
         serviceInfo = serviceInfo.apply {
-            eventTypes = 0
-            packageNames = null
-            flags = 0
+            eventTypes = eventTypes and AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED.inv()
+            packageNames = packageNames.copyOf(packageNames.lastIndex).ifEmpty { null }
+            flags = flags and AccessibilityServiceInfo.DEFAULT.inv()
         }
     }
 
@@ -142,11 +177,16 @@ class ScreenTranslatorAccessibilityService : AccessibilityService(){
     }
 
     private fun writeBitmapToFile(bitmap: Bitmap): File {
-        val file = File(application.filesDir, SCREENSHOT_FILE_NAME)
-        if (!file.exists()) file.createNewFile()
+        application
+            .cacheDir
+            .listFiles { _, filename -> filename.endsWith(".jpg") }
+            ?.forEach { file -> file.delete() }
+
+        val file = File(application.cacheDir, UUID.randomUUID().toString() + ".jpg")
+                .apply { if (!exists()) createNewFile() }
 
         val fileOutputStream = FileOutputStream(file)
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, fileOutputStream)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fileOutputStream)
         fileOutputStream.close()
 
         return file
@@ -157,7 +197,7 @@ class ScreenTranslatorAccessibilityService : AccessibilityService(){
 
         val uri = FileProvider.getUriForFile(
             application,
-            FILE_PROVIDER_AUTHORITY,
+            application.applicationContext.packageName + ".fileProvider",
             file
         )
 
@@ -217,5 +257,4 @@ class ScreenTranslatorAccessibilityService : AccessibilityService(){
     private fun showToast(message: String) {
         Toast.makeText(application, message, Toast.LENGTH_LONG).show()
     }
-
 }

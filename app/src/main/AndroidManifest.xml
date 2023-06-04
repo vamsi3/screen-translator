@@ -2,9 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <queries>
+        <package android:name="com.deepl.mobiletranslator" />
+        <package android:name="com.google.android.googlequicksearchbox" />
         <package android:name="com.google.ar.lens" />
         <package android:name="com.naver.labs.translator" />
-        <package android:name="com.deepl.mobiletranslator" />
 
         <intent>
             <action android:name="android.intent.action.SEND" />

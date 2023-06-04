@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vamsi3.android.screentranslator.core.data.model.ThemeMode
 import com.vamsi3.android.screentranslator.core.data.model.TranslateApp
@@ -19,7 +18,6 @@ import com.vamsi3.android.screentranslator.core.design.theme.ScreenTranslatorThe
 import com.vamsi3.android.screentranslator.core.design.util.ThemePreviews
 import com.vamsi3.android.screentranslator.feature.settings.SettingsUiState.Success
 
-@ExperimentalLifecycleComposeApi
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
@@ -348,7 +346,7 @@ private fun SettingsPreview() {
             SettingsContent(
                 settingsData = SettingsData(
                     themeMode = ThemeMode.SYSTEM,
-                    translateApp = TranslateApp.GOOGLE_LENS,
+                    translateApp = TranslateApp.GOOGLE,
                     notificationShadeCollapseDelayDuration = 300L,
                 ),
                 onChangeThemeMode = { },

@@ -1,7 +1,7 @@
 plugins {
-    id("screentranslator.build.android.library")
-    id("screentranslator.build.android.library.compose")
-    id("screentranslator.build.android.hilt")
+    id("com.vamsi3.android.screentranslator.gradle.plugin.android-library")
+    id("com.vamsi3.android.screentranslator.gradle.plugin.android-library-compose")
+    id("com.vamsi3.android.screentranslator.gradle.plugin.android-hilt")
 }
 
 android {

@@ -1,5 +1,5 @@
 plugins {
-    id("screentranslator.build.android.library")
+    id("com.vamsi3.android.screentranslator.gradle.plugin.android-library")
 }
 
 android {

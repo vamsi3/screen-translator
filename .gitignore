@@ -86,3 +86,6 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+
+# IntelliJ IDEA
+.idea/
