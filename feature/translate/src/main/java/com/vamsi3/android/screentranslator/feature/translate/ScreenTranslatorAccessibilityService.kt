@@ -1,6 +1,5 @@
 package com.vamsi3.android.screentranslator.feature.translate
 
-import android.accessibilityservice.AccessibilityButtonController
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.ActivityNotFoundException
@@ -12,6 +11,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.Display
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.vamsi3.android.screentranslator.core.data.model.TranslateApp
@@ -25,12 +25,15 @@ import java.io.FileOutputStream
 import java.util.UUID
 import javax.inject.Inject
 import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
+
 
 const val PACKAGE_ANDROID_SYSTEM_UI = "com.android.systemui"
 const val MIME_TYPE_JPEG = "image/jpeg"
 
 @AndroidEntryPoint
-class ScreenTranslatorAccessibilityService : AccessibilityService(){
+class ScreenTranslatorAccessibilityService : AccessibilityService() {
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
@@ -42,6 +45,15 @@ class ScreenTranslatorAccessibilityService : AccessibilityService(){
 //    private var mIsAccessibilityButtonAvailable: Boolean = false
 
     override fun onServiceConnected() {
+        Log.i(
+            "ScreenTranslatorAccessibilityService",
+            "canRetrieveWindowContent: ${serviceInfo.canRetrieveWindowContent}"
+        )
+
+        serviceInfo = serviceInfo.apply {
+            flags = flags or AccessibilityServiceInfo.DEFAULT
+        }
+
 //        mAccessibilityButtonController = accessibilityButtonController
 ////        mIsAccessibilityButtonAvailable = mAccessibilityButtonController?.isAccessibilityButtonAvailable ?: false
 ////
@@ -89,14 +101,27 @@ class ScreenTranslatorAccessibilityService : AccessibilityService(){
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
 
-//        Log.i("ScreenTranslator", "event: $event")
+        Log.i("ScreenTranslatorAccessibilityService", "event: $event")
 
-        disableWindowStateChangedEvents()
+        val translateApp = userDataRepository.userData.value?.translateApp ?: TranslateApp.default
 
         if (event.packageName.equals(PACKAGE_ANDROID_SYSTEM_UI) &&
             event.text.any { it.contains("Notification shade") }
         ) {
+            disableEvents()
+            if (translateApp == TranslateApp.GOOGLE) {
+                enableEventsForPackage(translateApp.packageName)
+            }
             takeScreenshotAndTranslate()
+        }
+
+        if (event.packageName.equals(translateApp.packageName)) {
+            if (translateApp == TranslateApp.GOOGLE) {
+                val translateNode = rootInActiveWindow?.findAccessibilityNodeInfosByText("Translate")
+                    ?.find { it.contentDescription == "Switch to Translate mode" }
+                translateNode?.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            }
+            disableEvents()
         }
     }
 
@@ -110,44 +135,50 @@ class ScreenTranslatorAccessibilityService : AccessibilityService(){
                 )
                 showToast(R.string.enable_screen_translator)
             }
+
             else -> {
-                enableWindowStateChangedEvents()
+                enableEventsForPackage(PACKAGE_ANDROID_SYSTEM_UI)
                 dismissNotificationShade()
             }
         }
     }
 
     private fun dismissNotificationShade() {
-        when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                performGlobalAction(GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE)
-            }
-            else -> {
-                val intent = Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
-                applicationContext.sendBroadcast(intent)
-            }
-        }
+        performGlobalAction(GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE)
 
-        Log.i("ScreenTranslator", "dismissNotificationShade: ${userDataRepository.userData.value?.notificationShadeCollapseDelayDuration}")
-
-        val delay = userDataRepository.userData.value?.notificationShadeCollapseDelayDuration ?: Duration.ZERO
+        val delay = userDataRepository.userData.value?.notificationShadeCollapseDelayDuration
+            ?: Duration.ZERO
         Thread.sleep(delay.inWholeMilliseconds)
     }
 
-    private fun enableWindowStateChangedEvents() {
+    private fun enableEventsForPackage(packageName: String) {
+        Log.i(
+            "ScreenTranslatorAccessibilityService",
+            "before enableEventsForPackage | serviceInfo: $serviceInfo"
+        )
         serviceInfo = serviceInfo.apply {
             eventTypes = eventTypes or AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
-            packageNames = packageNames?.plusElement(PACKAGE_ANDROID_SYSTEM_UI) ?: arrayOf(PACKAGE_ANDROID_SYSTEM_UI)
-            flags = flags or AccessibilityServiceInfo.DEFAULT
+            packageNames = packageNames?.plusElement(packageName) ?: arrayOf(packageName)
         }
+        Log.i(
+            "ScreenTranslatorAccessibilityService",
+            "after enableEventsForPackage | serviceInfo: $serviceInfo"
+        )
     }
 
-    private fun disableWindowStateChangedEvents() {
+    private fun disableEvents() {
+        Log.i(
+            "ScreenTranslatorAccessibilityService",
+            "before disableEvents | serviceInfo: $serviceInfo"
+        )
         serviceInfo = serviceInfo.apply {
             eventTypes = eventTypes and AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED.inv()
-            packageNames = packageNames.copyOf(packageNames.lastIndex).ifEmpty { null }
-            flags = flags and AccessibilityServiceInfo.DEFAULT.inv()
+            packageNames = null
         }
+        Log.i(
+            "ScreenTranslatorAccessibilityService",
+            "after disableEvents | serviceInfo: $serviceInfo"
+        )
     }
 
     private fun takeScreenshotAndTranslate() {
@@ -183,7 +214,7 @@ class ScreenTranslatorAccessibilityService : AccessibilityService(){
             ?.forEach { file -> file.delete() }
 
         val file = File(application.cacheDir, UUID.randomUUID().toString() + ".jpg")
-                .apply { if (!exists()) createNewFile() }
+            .apply { if (!exists()) createNewFile() }
 
         val fileOutputStream = FileOutputStream(file)
         bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fileOutputStream)
@@ -196,7 +227,7 @@ class ScreenTranslatorAccessibilityService : AccessibilityService(){
         val translateApp = userDataRepository.userData.value?.translateApp ?: TranslateApp.default
 
         val uri = FileProvider.getUriForFile(
-            application,
+            applicationContext,
             application.applicationContext.packageName + ".fileProvider",
             file
         )
@@ -205,7 +236,6 @@ class ScreenTranslatorAccessibilityService : AccessibilityService(){
             .setType(MIME_TYPE_JPEG)
             .setPackage(translateApp.packageName)
             .setClassName(translateApp.packageName, translateApp.imageTranslateActivity)
-//            .setDataAndTypeAndNormalize(uri, MIME_TYPE_JPEG)
             .setFlags(
                 Intent.FLAG_GRANT_READ_URI_PERMISSION
                         or Intent.FLAG_ACTIVITY_NEW_DOCUMENT
@@ -225,14 +255,15 @@ class ScreenTranslatorAccessibilityService : AccessibilityService(){
 
     private fun suggestTranslateAppInstallation(translateApp: TranslateApp) {
         showToast("Please install ${translateApp.appName}")
-        
+
         val intent = Intent(Intent.ACTION_VIEW).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
 
         try {
             startActivity(intent.apply {
-                data = Uri.parse("https://play.google.com/store/apps/details?id=${translateApp.packageName}")
+                data =
+                    Uri.parse("https://play.google.com/store/apps/details?id=${translateApp.packageName}")
                 `package` = "com.android.vending"
             })
         } catch (e: ActivityNotFoundException) {
@@ -243,7 +274,8 @@ class ScreenTranslatorAccessibilityService : AccessibilityService(){
                 })
             } catch (e: ActivityNotFoundException) {
                 startActivity(intent.apply {
-                    data = Uri.parse("https://play.google.com/store/apps/details?id=${translateApp.packageName}")
+                    data =
+                        Uri.parse("https://play.google.com/store/apps/details?id=${translateApp.packageName}")
                     `package` = null
                 })
             }

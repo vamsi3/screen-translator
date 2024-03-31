@@ -36,7 +36,6 @@ class UserPreferencesDataSource @Inject constructor(
                     UserTranslateAppPreferenceProto.TRANSLATE_APP_GOOGLE -> TranslateApp.GOOGLE
 
                     UserTranslateAppPreferenceProto.TRANSLATE_APP_DEEPL_TRANSLATE -> TranslateApp.DEEPL_TRANSLATE
-                    UserTranslateAppPreferenceProto.TRANSLATE_APP_GOOGLE_LENS -> TranslateApp.GOOGLE_LENS
                     UserTranslateAppPreferenceProto.TRANSLATE_APP_NAVER_PAPAGO -> TranslateApp.NAVER_PAPAGO
                 },
             )
@@ -74,7 +73,6 @@ class UserPreferencesDataSource @Inject constructor(
                 this.userTranslateAppPreference = when (translateApp) {
                     TranslateApp.DEEPL_TRANSLATE -> UserTranslateAppPreferenceProto.TRANSLATE_APP_DEEPL_TRANSLATE
                     TranslateApp.GOOGLE -> UserTranslateAppPreferenceProto.TRANSLATE_APP_GOOGLE
-                    TranslateApp.GOOGLE_LENS -> UserTranslateAppPreferenceProto.TRANSLATE_APP_GOOGLE_LENS
                     TranslateApp.NAVER_PAPAGO -> UserTranslateAppPreferenceProto.TRANSLATE_APP_NAVER_PAPAGO
                 }
             }

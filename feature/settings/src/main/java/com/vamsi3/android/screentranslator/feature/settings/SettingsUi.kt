@@ -275,8 +275,16 @@ fun NotificationShadeCollapseSetting(
         shadowElevation = 8.dp,
         shape = RoundedCornerShape(8.dp),
     ) {
-        var notificationShadeCollapseDelayDurationState by remember { mutableStateOf(notificationShadeCollapseDelayDuration) }
-        var isNotificationShadeCollapseEnabled by remember { mutableStateOf(notificationShadeCollapseDelayDurationState != 0L) }
+        var notificationShadeCollapseDelayDurationState by remember {
+            mutableStateOf(
+                notificationShadeCollapseDelayDuration
+            )
+        }
+        var isNotificationShadeCollapseEnabled by remember {
+            mutableStateOf(
+                notificationShadeCollapseDelayDurationState != 0L
+            )
+        }
 
         Column {
             Row(
@@ -300,7 +308,7 @@ fun NotificationShadeCollapseSetting(
             }
             Row(
                 modifier = Modifier
-                    .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -309,28 +317,29 @@ fun NotificationShadeCollapseSetting(
                     value = notificationShadeCollapseDelayDurationState.toFloat(),
                     onValueChange = { notificationShadeCollapseDelayDurationState = it.toLong() },
                     onValueChangeFinished = {
-                        isNotificationShadeCollapseEnabled = notificationShadeCollapseDelayDurationState != 0L
+                        isNotificationShadeCollapseEnabled =
+                            notificationShadeCollapseDelayDurationState != 0L
                         onChangeNotificationShadeCollapseDelayDuration(
                             notificationShadeCollapseDelayDurationState
                         )
                     },
-                    valueRange = 0f..900f,
-                    steps = 8,
+                    valueRange = 0f..1000f,
+                    steps = 9,
                     modifier = Modifier
                         .padding(vertical = 16.dp)
                         .fillMaxWidth(0.6f),
                     enabled = isNotificationShadeCollapseEnabled
                 )
                 if (isNotificationShadeCollapseEnabled) {
-                    Button(
-                        enabled = false,
-                        onClick = {},
+                    Surface(
+                        tonalElevation = 8.dp,
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
-                            .height(48.dp),
                     ) {
-                        Text("$notificationShadeCollapseDelayDurationState ms")
+                        Text(
+                            "$notificationShadeCollapseDelayDurationState ms",
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp, vertical = 16.dp)
+                        )
                     }
                 }
             }

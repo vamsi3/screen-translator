@@ -1,20 +1,20 @@
 [versions]
 androidxAppCompat = "1.6.1"
-androidxComposeBom = "2023.04.01"
-androidxComposeCompiler = "1.4.6"
-androidxCoreKtx = "1.10.0"
+androidxComposeBom = "2024.03.00"
+androidxComposeCompiler = "1.5.11"
+androidxCore = "1.12.0"
 androidxCoreSplashScreen = "1.0.1"
 androidxDataStore = "1.0.0"
-androidDesugarJdkLibs = "2.0.3"
-androidGradlePlugin = "8.0.2"
-androidxHiltNavigationCompose = "1.0.0"
-androidxLifecycle = "2.6.1"
-hilt = "2.46"
-kotlin = "1.8.20"
-kotlinxCoroutines = "1.6.4"
-protobuf = "3.22.3"
-protobufPlugin = "0.9.3"
-ksp = "1.8.20-1.0.11"
+androidDesugarJdkLibs = "2.0.4"
+androidGradlePlugin = "8.3.1"
+androidxHiltNavigationCompose = "1.2.0"
+androidxLifecycle = "2.7.0"
+hilt = "2.51.1"
+kotlin = "1.9.23"
+kotlinxCoroutines = "1.8.0"
+protobuf = "4.26.1"
+protobufPlugin = "0.9.4"
+ksp = "1.9.23-1.0.19"
 
 [libraries]
 android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "androidDesugarJdkLibs" }
@@ -29,7 +29,8 @@ androidx-compose-runtime-livedata = { group = "androidx.compose.runtime", name =
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-ui-util = { group = "androidx.compose.ui", name = "ui-util" }
-androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCoreKtx" }
+androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "androidxCoreSplashScreen" }
 androidx-dataStore-core = { group = "androidx.datastore", name = "datastore", version.ref = "androidxDataStore" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
