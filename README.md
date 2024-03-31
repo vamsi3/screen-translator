@@ -18,6 +18,8 @@ Notice that using the Screen Translator app is much quicker than the traditional
 
 This app has a UI for a few settings too.
 
+![Settings UI](docs/Settings.png)
+
 ## Author
 
 Satti Vamsi Krishna Reddy - [vamsi3](https://github.com/vamsi3)
@@ -29,5 +31,7 @@ This project is licensed under the MIT License - please see the [LICENSE](LICENS
 ## Disclaimer
 
 DeepL, DeepL Translator and all related logos are trademarks of DeepL SE or its affiliates.
+
 Google, Google Lens™ visual search engine and all related logos are trademarks of Google LLC or its affiliates.
+
 NAVER, Papago and all related logos are trademarks of NAVER Corporation or its affiliates.
