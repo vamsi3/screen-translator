@@ -6,7 +6,6 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import android.view.Display
@@ -25,12 +24,11 @@ import java.io.FileOutputStream
 import java.util.UUID
 import javax.inject.Inject
 import kotlin.time.Duration
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 
 const val PACKAGE_ANDROID_SYSTEM_UI = "com.android.systemui"
 const val MIME_TYPE_JPEG = "image/jpeg"
+const val STRING_RES_ID_NOTIFICATION_SHADE = "accessibility_desc_notification_shade"
 
 @AndroidEntryPoint
 class ScreenTranslatorAccessibilityService : AccessibilityService() {
@@ -88,6 +86,20 @@ class ScreenTranslatorAccessibilityService : AccessibilityService() {
 //        }
     }
 
+    // Discouraged API - Serious performance and security implication!
+    // please change with safer option
+    private fun getNotificationShadeName() : String {
+        var retval = "Notification shade"
+        try {
+            val sysUiRes = packageManager.getResourcesForApplication(PACKAGE_ANDROID_SYSTEM_UI)
+            val shadeStrId = sysUiRes.getIdentifier(STRING_RES_ID_NOTIFICATION_SHADE, "string", PACKAGE_ANDROID_SYSTEM_UI)
+            if (shadeStrId != 0) {
+                retval = sysUiRes.getString(shadeStrId)
+            }
+        } catch (_:Exception) { }
+        return retval
+    }
+
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         translateScreen()
         stopSelf(startId)
@@ -104,9 +116,10 @@ class ScreenTranslatorAccessibilityService : AccessibilityService() {
         Log.i("ScreenTranslatorAccessibilityService", "event: $event")
 
         val translateApp = userDataRepository.userData.value?.translateApp ?: TranslateApp.default
+        val notifShadeName = getNotificationShadeName()
 
         if (event.packageName.equals(PACKAGE_ANDROID_SYSTEM_UI) &&
-            event.text.any { it.contains("Notification shade") }
+            event.text.any { it.contains(notifShadeName) }
         ) {
             disableEvents()
             if (translateApp == TranslateApp.GOOGLE) {
